@@ -4,10 +4,7 @@ import com.github.theholywaffle.teamspeak3.TS3Api;
 import com.github.theholywaffle.teamspeak3.TS3Query;
 import jakarta.annotation.*;
 import org.example.teamspeak3app.dto.TS3GroupDTO;
-import org.example.teamspeak3app.events.ChannelDeletionEvent;
-import org.example.teamspeak3app.events.ClientPaydayEvent;
-import org.example.teamspeak3app.events.PrivateMessageEvent;
-import org.example.teamspeak3app.events.WelcomeMessageEvent;
+import org.example.teamspeak3app.events.*;
 import org.example.teamspeak3app.model.TS3Server;
 import org.example.teamspeak3app.repository.TS3ServerRepository;
 import org.example.teamspeak3app.utils.TaskScheduler;
@@ -65,7 +62,8 @@ public class TS3ServerService {
                         new PrivateMessageEvent(ts3Api, ts3ClientService),
                         new WelcomeMessageEvent(ts3Api),
                         new ClientPaydayEvent(ts3Api, ts3ClientService),
-                        new ChannelDeletionEvent(ts3Api, ts3ClientService)
+                        new ChannelDeletionEvent(ts3Api, ts3ClientService),
+                        new ClientKickEvent(ts3Api, ts3ClientService)
                 );
 
                 ts3Api.getServerGroups().forEach(serverGroup -> ts3GroupService.addTS3Group(

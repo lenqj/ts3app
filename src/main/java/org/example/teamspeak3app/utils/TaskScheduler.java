@@ -28,8 +28,8 @@ public class TaskScheduler {
         ScheduledExecutorService scheduler3 = Executors.newScheduledThreadPool(1);
 
         long initialDelay = getInitialDelay();
-        scheduler1.scheduleAtFixedRate(() -> checkClientsActivity(ts3Api, ts3ClientService), 0, 30, TimeUnit.SECONDS);
-        scheduler2.scheduleAtFixedRate(() -> checkClientsLevel(ts3Api, ts3ClientService, ts3GroupService), 0, 30, TimeUnit.SECONDS);
+        scheduler1.scheduleAtFixedRate(() -> checkClientsActivity(ts3Api, ts3ClientService), initialDelay, 1, TimeUnit.HOURS);
+        scheduler2.scheduleAtFixedRate(() -> checkClientsLevel(ts3Api, ts3ClientService, ts3GroupService), initialDelay, 1, TimeUnit.HOURS);
         scheduler3.scheduleAtFixedRate(() -> checkAFKClients(ts3Api), 0, 30, TimeUnit.SECONDS);
 
     }

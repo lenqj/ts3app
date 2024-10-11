@@ -11,6 +11,8 @@ import org.example.teamspeak3app.service.TS3ClientService;
 import org.example.teamspeak3app.utils.MessageHelper;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,8 +41,14 @@ public class PrivateMessageEvent implements TS3Listener {
                             String notificationMessageForUser;
                             if (channelName != null) {
                                 final Map<ChannelProperty, String> properties = new HashMap<>();
+                                properties.put(ChannelProperty.CPID, String.valueOf(73));
                                 properties.put(ChannelProperty.CHANNEL_FLAG_PERMANENT, "1");
-                                properties.put(ChannelProperty.CHANNEL_TOPIC, "Created by " + api.whoAmI().getNickname() + " for " + client.getUniqueIdentifier() + " on " + LocalDateTime.now());
+                                properties.put(ChannelProperty.CHANNEL_TOPIC, "Created by " +
+                                        api.whoAmI().getNickname() +
+                                        " for " +
+                                        client.getUniqueIdentifier() +
+                                        " on " +
+                                        DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).format(LocalDateTime.now()));
 
                                 if (api.getChannelByNameExact(channelName, true) == null) {
                                     int channelId = api.createChannel(channelName, properties);
@@ -69,7 +77,7 @@ public class PrivateMessageEvent implements TS3Listener {
                                         .id(client.getUniqueIdentifier())
                                         .username(username)
                                         .password(password)
-                                        .coins(Double.valueOf(0.0))
+                                        .coins(0.0)
                                         .build();
                                 TS3Client ts3Client = ts3ClientService.addTS3Client(ts3ClientDTO);
                                 if (ts3Client != null) {
@@ -98,6 +106,11 @@ public class PrivateMessageEvent implements TS3Listener {
                                     client.getId(), notificationMessageForUser);
                         }
                     }
+                } else {
+                    String notificationMessageForUser =
+                            "invalid";
+                    api.sendPrivateMessage(
+                            client.getId(), notificationMessageForUser);
                 }
             }
         }
