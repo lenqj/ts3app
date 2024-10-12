@@ -111,7 +111,7 @@ public class TS3ClientService {
         ts3ClientRepository.save(ts3Client);
     }
 
-    public TS3Client updateTS3ClientOnDeleteChannel(String uniqueIdentifier) {
+    public TS3Client updateTS3ClientOnSpamAction(String uniqueIdentifier) {
         Optional<TS3Client> optionalTS3Client = ts3ClientRepository.findById(uniqueIdentifier);
         if (optionalTS3Client.isEmpty()) {
             return null;
@@ -124,25 +124,24 @@ public class TS3ClientService {
             ts3Client.setNoOfActions(1);
         } else {
             Duration duration = Duration.between(ts3Client.getLastActionTime(), LocalDateTime.now());
-            if (duration.getSeconds() < 10) {
+            if (duration.toSeconds() <= 30) {
                 ts3Client.setNoOfActions(ts3Client.getNoOfActions() + 1);
-                ts3Client.setLastActionTime(LocalDateTime.now());
             } else {
-                ts3Client.setNoOfActions(null);
-                ts3Client.setLastActionTime(null);
+                ts3Client.setNoOfActions(1);
+                ts3Client.setLastActionTime(LocalDateTime.now());
             }
         }
 
         return ts3ClientRepository.save(ts3Client);
     }
 
-    public TS3Client updateTS3Client(TS3Client ts3Client) {
+    public void updateTS3Client(TS3Client ts3Client) {
         Optional<TS3Client> optionalTS3Client = ts3ClientRepository.findById(ts3Client.getId());
         if (optionalTS3Client.isEmpty()) {
-            return null;
+            return;
         }
 
-        return ts3ClientRepository.save(ts3Client);
+        ts3ClientRepository.save(ts3Client);
     }
 
 }

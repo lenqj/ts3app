@@ -4,8 +4,9 @@ import com.github.theholywaffle.teamspeak3.TS3Api;
 import com.github.theholywaffle.teamspeak3.TS3Config;
 import com.github.theholywaffle.teamspeak3.TS3Query;
 import com.github.theholywaffle.teamspeak3.api.wrapper.Client;
-import com.github.theholywaffle.teamspeak3.api.wrapper.VirtualServer;
-import org.example.teamspeak3app.model.*;
+import org.example.teamspeak3app.model.TS3Client;
+import org.example.teamspeak3app.model.TS3Group;
+import org.example.teamspeak3app.model.TS3Server;
 import org.example.teamspeak3app.service.TS3ClientService;
 import org.example.teamspeak3app.service.TS3GroupService;
 import org.springframework.stereotype.Component;
@@ -85,21 +86,11 @@ public class UtilMethods {
 
     public static void checkAFKClients(
             TS3Api ts3Api) {
-        List<VirtualServer> virtualServers = ts3Api.getVirtualServers();
-        for (VirtualServer virtualServer : virtualServers) {
-            System.out.println(virtualServer.get("VIRTUALSERVER_LOG_CHANNEL"));
-            System.out.println(virtualServer.get("VIRTUALSERVER_LOG_CLIENT"));
-            System.out.println(virtualServer.get("VIRTUALSERVER_LOG_FILETRANSFER"));
-            System.out.println(virtualServer.get("VIRTUALSERVER_LOG_PERMISSIONS"));
-            System.out.println(virtualServer.get("VIRTUALSERVER_LOG_QUERY"));
-            System.out.println(virtualServer.get("VIRTUALSERVER_LOG_SERVER"));
-        }
         List<Client> clients = ts3Api.getClients();
         for (Client client : clients) {
-
             if (client.isRegularClient() && client.getChannelId() != 2) {
                 long idleTime = client.getIdleTime();
-                if(idleTime >= 600000){
+                if (idleTime >= 600000) {
                     ts3Api.moveClient(client.getId(), 2);
                     ts3Api.sendPrivateMessage(client.getId(),
                             "Ai fost AFK mai mult de " + 10 + " minute si te-am mutat pe canalul de AFK!");

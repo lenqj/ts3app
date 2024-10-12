@@ -60,14 +60,14 @@ public class ChannelDeletionEvent implements TS3Listener {
         String userId = channelDeletedEvent.getInvokerUniqueId();
         Client client = ts3Api.getClientInfo(channelDeletedEvent.getInvokerId());
         if (client.isRegularClient()) {
-            TS3Client ts3Client = ts3ClientService.updateTS3ClientOnDeleteChannel(userId);
+            TS3Client ts3Client = ts3ClientService.updateTS3ClientOnSpamAction(userId);
             if (ts3Client != null &&
                     ts3Client.getLastActionTime() != null &&
                     ts3Client.getNoOfActions() >= 3) {
                 ts3Api.kickClientFromServer("Mai usor cu spamul, printule!", client);
                 ts3Client.setLastActionTime(null);
                 ts3Client.setNoOfActions(0);
-                ts3Client = ts3ClientService.updateTS3Client(ts3Client);
+                ts3ClientService.updateTS3Client(ts3Client);
             }
         }
     }

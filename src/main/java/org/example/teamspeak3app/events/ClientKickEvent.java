@@ -71,14 +71,13 @@ public class ClientKickEvent implements TS3Listener {
 
     @Override
     public void onClientLeave(ClientLeaveEvent e) {
-        System.out.println(e);
         switch(e.getReasonId()){
             case 5:
             case 6: {
                 String userId = e.getInvokerUniqueId();
                 Client client = ts3Api.getClientInfo(e.getInvokerId());
                 if (client.isRegularClient()) {
-                    TS3Client ts3Client = ts3ClientService.updateTS3ClientOnDeleteChannel(userId);
+                    TS3Client ts3Client = ts3ClientService.updateTS3ClientOnSpamAction(userId);
                     if (ts3Client != null &&
                             ts3Client.getLastActionTime() != null &&
                             ts3Client.getNoOfActions() >= 3) {
@@ -89,7 +88,7 @@ public class ClientKickEvent implements TS3Listener {
                     }
                 }
             }
-                break;
+            break;
         }
     }
 }
