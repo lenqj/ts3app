@@ -29,6 +29,11 @@ public class TS3Client {
 
     private Integer noOfActions;
 
+    private Integer homeChannelId;
+
+    @Column(nullable = false)
+    private boolean ignoreBotNotifications;
+
     @ManyToOne
     private TS3Group ts3LevelGroup;
 }

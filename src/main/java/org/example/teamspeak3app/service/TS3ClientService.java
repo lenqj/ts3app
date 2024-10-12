@@ -144,4 +144,10 @@ public class TS3ClientService {
         ts3ClientRepository.save(ts3Client);
     }
 
+    public TS3Client findTS3ClientById(String uniqueIdentifier) {
+        Optional<TS3Client> optionalTS3Client = ts3ClientRepository.findById(uniqueIdentifier);
+        return optionalTS3Client.orElse(null);
+
+    }
+
 }

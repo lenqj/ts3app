@@ -29,91 +29,105 @@ public class PrivateMessageEvent implements TS3Listener {
     @Override
     public void onTextMessage(TextMessageEvent e) {
         Client client = api.getClientInfo(e.getInvokerId());
-        if (client.isRegularClient() && client.getId() != api.whoAmI().getId()) {
-            if (e.getTargetMode() == TextMessageTargetMode.CLIENT) {
-                String message = e.getMessage();
+        if (client.isRegularClient() &&
+                client.getId() != api.whoAmI().getId() &&
+                e.getTargetMode() == TextMessageTargetMode.CLIENT
+        ) {
+            String message = e.getMessage();
+            String notificationMessageForUser = "Invalid!";
+            AbstractMap.SimpleEntry<Integer, String> commandAndArguments = MessageHelper.handleMessage(message);
+            if (commandAndArguments != null) {
+                switch (commandAndArguments.getKey()) {
+                    case 1: {
+                        String channelName = commandAndArguments.getValue();
+                        if (channelName != null) {
+                            final Map<ChannelProperty, String> properties = new HashMap<>();
+                            properties.put(ChannelProperty.CPID, String.valueOf(73));
+                            properties.put(ChannelProperty.CHANNEL_FLAG_PERMANENT, "1");
+                            properties.put(ChannelProperty.CHANNEL_TOPIC, "Created by " +
+                                    api.whoAmI().getNickname() +
+                                    " for " +
+                                    client.getUniqueIdentifier() +
+                                    " on " +
+                                    DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).format(LocalDateTime.now()));
 
-                AbstractMap.SimpleEntry<Integer, String> commandAndArguments = MessageHelper.handleMessage(message);
-                if (commandAndArguments != null) {
-                    switch (commandAndArguments.getKey()) {
-                        case 1: {
-                            String channelName = commandAndArguments.getValue();
-                            String notificationMessageForUser;
-                            if (channelName != null) {
-                                final Map<ChannelProperty, String> properties = new HashMap<>();
-                                properties.put(ChannelProperty.CPID, String.valueOf(73));
-                                properties.put(ChannelProperty.CHANNEL_FLAG_PERMANENT, "1");
-                                properties.put(ChannelProperty.CHANNEL_TOPIC, "Created by " +
-                                        api.whoAmI().getNickname() +
-                                        " for " +
-                                        client.getUniqueIdentifier() +
-                                        " on " +
-                                        DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT).format(LocalDateTime.now()));
-
-                                if (api.getChannelByNameExact(channelName, true) == null) {
-                                    int channelId = api.createChannel(channelName, properties);
-                                    api.moveClient(client.getId(), channelId);
-                                    api.setClientChannelGroup(5, channelId, client.getDatabaseId());
-                                    notificationMessageForUser =
-                                            "Ai creat cu succes canalul cu numele: " + channelName + "!";
-                                } else {
-                                    notificationMessageForUser =
-                                            "Canalul cu numele " + channelName + " exista deja!";
-                                }
+                            if (api.getChannelByNameExact(channelName, true) == null) {
+                                int channelId = api.createChannel(channelName, properties);
+                                api.moveClient(client.getId(), channelId);
+                                api.setClientChannelGroup(5, channelId, client.getDatabaseId());
+                                notificationMessageForUser =
+                                        "Ai creat cu succes canalul cu numele: " + channelName + "!";
                             } else {
-                                notificationMessageForUser = "[EROARE] - Foloseste !create-channel NUME-CANAL.";
+                                notificationMessageForUser =
+                                        "Canalul cu numele " + channelName + " exista deja!";
                             }
-                            api.sendPrivateMessage(
-                                    client.getId(), notificationMessageForUser);
+                        } else {
+                            notificationMessageForUser = "[EROARE] - Foloseste !create-channel NUME-CANAL.";
                         }
-                        break;
-                        case 2: {
-                            String[] arguments = commandAndArguments.getValue().split(" ");
-                            String notificationMessageForUser;
-                            if (arguments.length == 2) {
-                                String username = arguments[0];
-                                String password = arguments[1];
-                                TS3ClientDTO ts3ClientDTO = TS3ClientDTO.builder()
-                                        .id(client.getUniqueIdentifier())
-                                        .username(username)
-                                        .password(password)
-                                        .coins(0.0)
-                                        .build();
-                                TS3Client ts3Client = ts3ClientService.addTS3Client(ts3ClientDTO);
-                                if (ts3Client != null) {
-                                    notificationMessageForUser = username + " te-ai inregistrat cu succes!";
-                                } else {
-                                    notificationMessageForUser = username + " este deja inregistrat la noi!";
-                                }
-                            } else {
-                                notificationMessageForUser = "[EROARE] - Sintaxa este gresita, foloseste !register nume parola.";
-                            }
-                            api.sendPrivateMessage(
-                                    client.getId(), notificationMessageForUser);
-                        }
-                        break;
-                        case 3: {
-                            String notificationMessageForUser =
-                                    "info!";
-                            api.sendPrivateMessage(
-                                    client.getId(), notificationMessageForUser);
-                        }
-                        break;
-                        default: {
-                            String notificationMessageForUser =
-                                    "invalid";
-                            api.sendPrivateMessage(
-                                    client.getId(), notificationMessageForUser);
-                        }
+                        api.sendPrivateMessage(
+                                client.getId(), notificationMessageForUser);
                     }
-                } else {
-                    String notificationMessageForUser =
-                            "invalid";
-                    api.sendPrivateMessage(
-                            client.getId(), notificationMessageForUser);
+                    break;
+                    case 2: {
+                        String[] arguments = commandAndArguments.getValue().split(" ");
+                        if (arguments.length == 2) {
+                            String username = arguments[0];
+                            String password = arguments[1];
+                            TS3ClientDTO ts3ClientDTO = TS3ClientDTO.builder()
+                                    .id(client.getUniqueIdentifier())
+                                    .username(username)
+                                    .password(password)
+                                    .coins(0.0)
+                                    .build();
+                            TS3Client ts3Client = ts3ClientService.addTS3Client(ts3ClientDTO);
+                            if (ts3Client != null) {
+                                notificationMessageForUser = username + " te-ai inregistrat cu succes!";
+                            } else {
+                                notificationMessageForUser = username + " este deja inregistrat la noi!";
+                            }
+                        } else {
+                            notificationMessageForUser = "[EROARE] - Sintaxa este gresita, foloseste !register nume parola.";
+                        }
+                        api.sendPrivateMessage(
+                                client.getId(), notificationMessageForUser);
+                    }
+                    break;
+                    case 3: {
+                        notificationMessageForUser =
+                                "Available commands: !";
+                        if (commandAndArguments.getValue() != null) {
+                            String[] arguments = commandAndArguments.getValue().split(" ");
+                            if (arguments.length > 0) {
+                                if (arguments.length == 1) {
+                                    switch (arguments[0]) {
+                                        case "info": {
+                                            notificationMessageForUser =
+                                                    "You are, " + client.getNickname();
+                                        }
+                                        break;
+                                        case "ignore-notifications": {
+                                            TS3Client ts3Client = ts3ClientService.findTS3ClientById(client.getUniqueIdentifier());
+                                            if (ts3Client != null) {
+                                                ts3Client.setIgnoreBotNotifications(!ts3Client.isIgnoreBotNotifications());
+                                                ts3ClientService.updateTS3Client(ts3Client);
+                                            }
+                                        }
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        api.sendPrivateMessage(
+                                client.getId(), notificationMessageForUser);
+                    }
+                    break;
                 }
             }
+            api.sendPrivateMessage(
+                    client.getId(), notificationMessageForUser);
+
         }
+
     }
 
 
@@ -168,6 +182,5 @@ public class PrivateMessageEvent implements TS3Listener {
 
     @Override
     public void onClientLeave(ClientLeaveEvent e) {
-        System.out.println(e);
     }
 }
