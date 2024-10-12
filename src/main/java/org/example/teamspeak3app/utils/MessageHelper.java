@@ -36,7 +36,7 @@ public class MessageHelper {
         Map<String, Integer> commands = new HashMap<>();
         commands.put("create-channel", 1);
         commands.put("register", 2);
-        commands.put("info", 3);
+        commands.put("client", 3);
         return commands;
     }
 
