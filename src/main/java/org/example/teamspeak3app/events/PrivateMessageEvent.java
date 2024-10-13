@@ -34,7 +34,7 @@ public class PrivateMessageEvent implements TS3Listener {
                 e.getTargetMode() == TextMessageTargetMode.CLIENT
         ) {
             String message = e.getMessage();
-            String notificationMessageForUser = "Invalid!";
+            StringBuilder notificationMessageForUser = new StringBuilder("Invalid command, use !help to get list of all available commands!");
             AbstractMap.SimpleEntry<Integer, String> commandAndArguments = MessageHelper.handleMessage(message);
             if (commandAndArguments != null) {
                 switch (commandAndArguments.getKey()) {
@@ -56,16 +56,15 @@ public class PrivateMessageEvent implements TS3Listener {
                                 api.moveClient(client.getId(), channelId);
                                 api.setClientChannelGroup(5, channelId, client.getDatabaseId());
                                 notificationMessageForUser =
-                                        "Ai creat cu succes canalul cu numele: " + channelName + "!";
+                                        new StringBuilder("[B][SUCCESS][/B] - [color=green]You have successfully created the channel named: " + channelName + "![/color]");
                             } else {
                                 notificationMessageForUser =
-                                        "Canalul cu numele " + channelName + " exista deja!";
+                                        new StringBuilder("[B][ERROR][/B] - [color=red]The channel with the name " + channelName + " already exists![/color]");
                             }
                         } else {
-                            notificationMessageForUser = "[EROARE] - Foloseste !create-channel NUME-CANAL.";
+                            notificationMessageForUser =
+                                    new StringBuilder("[B][ERROR][/B] - [color=red]Please use the correct format: !create-channel CHANNEL-NAME.[/color]");
                         }
-                        api.sendPrivateMessage(
-                                client.getId(), notificationMessageForUser);
                     }
                     break;
                     case 2: {
@@ -80,20 +79,33 @@ public class PrivateMessageEvent implements TS3Listener {
                                     .build();
                             TS3Client ts3Client = ts3ClientService.addTS3Client(ts3ClientDTO);
                             if (ts3Client != null) {
-                                notificationMessageForUser = username + " te-ai inregistrat cu succes!";
+                                notificationMessageForUser =
+                                        new StringBuilder("[B][SUCCESS][/B] - [color=green]" + username + ", you have successfully registered![/color]");
                             } else {
-                                notificationMessageForUser = username + " este deja inregistrat la noi!";
+                                notificationMessageForUser =
+                                        new StringBuilder("[B][ERROR][/B] - [color=red]" + username + " is already registered with us![/color]");
                             }
                         } else {
-                            notificationMessageForUser = "[EROARE] - Sintaxa este gresita, foloseste !register nume parola.";
+                            notificationMessageForUser =
+                                    new StringBuilder("[B][ERROR][/B] - [color=red]Incorrect syntax, please use: !register username password.[/color]");
                         }
-                        api.sendPrivateMessage(
-                                client.getId(), notificationMessageForUser);
                     }
                     break;
                     case 3: {
-                        notificationMessageForUser =
-                                "Available commands: !";
+                        notificationMessageForUser = new StringBuilder("Available commands for [B]!client[/B]: \n");
+
+                        String[] clientCommands = {
+                                "[B]!client welcome[/B] - [color=green]enable[/color]/[color=red]disable[/color] the welcome message when you connect to the server.",
+                                "[B]!client automove[/B] - [color=green]enable[/color]/[color=red]disable[/color] the automove to the channel you disconnected.",
+                                "[B]!client autoafk[/B] - [color=green]enable[/color]/[color=red]disable[/color] automatic move to AFK channel, if you are idle for few minutes.",
+                                "[B]!client payday[/B] - [color=green]enable[/color]/[color=red]disable[/color] the messages related to changes of your balance.",
+                                "[B]!client showrank/showlevel[/B] - [color=green]enable[/color]/[color=red]disable[/color] setting the server groups for Level 5, 10 etc."
+                        };
+
+                        for (String command : clientCommands) {
+                            notificationMessageForUser.append(command).append("\n");
+                        }
+
                         if (commandAndArguments.getValue() != null) {
                             String[] arguments = commandAndArguments.getValue().split(" ");
                             if (arguments.length > 0) {
@@ -101,7 +113,7 @@ public class PrivateMessageEvent implements TS3Listener {
                                     switch (arguments[0]) {
                                         case "info": {
                                             notificationMessageForUser =
-                                                    "You are, " + client.getNickname();
+                                                    new StringBuilder("You are, " + client.getNickname());
                                         }
                                         break;
                                         case "payday": {
@@ -140,14 +152,27 @@ public class PrivateMessageEvent implements TS3Listener {
                                 }
                             }
                         }
-                        api.sendPrivateMessage(
-                                client.getId(), notificationMessageForUser);
+                    }
+                    break;
+                    case 4: {
+                        notificationMessageForUser =
+                                new StringBuilder("Available commands: !");
+
+                        String[] commands = {
+                                "[B]!help[/B] - [color=blue]Displays the list of commands![/color]",
+                                "[B]!client[/B] - [color=blue]Displays the list of client commands![/color]",
+                                "[B]!create-channel channel-name[/B] - [color=blue]Creates a channel.[/color]"
+                        };
+
+                        for (String command : commands) {
+                            notificationMessageForUser.append(command).append("\n");
+                        }
                     }
                     break;
                 }
             }
             api.sendPrivateMessage(
-                    client.getId(), notificationMessageForUser);
+                    client.getId(), String.valueOf(notificationMessageForUser));
 
         }
 

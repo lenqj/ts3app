@@ -70,49 +70,41 @@ public class TS3ClientService {
                 return ts3Client;
             }
         } else {
+            Double payday = BigDecimal.valueOf(35 * Math.random()).setScale(2, RoundingMode.HALF_UP).doubleValue();
+            Double totalCoins = BigDecimal.valueOf(ts3Client.getCoins() + payday).setScale(2, RoundingMode.HALF_UP).doubleValue();
+
+            ts3Client.setLastPayday(payday);
             ts3Client.setLastPaydayDate(LocalDateTime.now());
-            ts3ClientRepository.save(ts3Client);
-            return null;
+            ts3Client.setCoins(totalCoins);
+            return ts3ClientRepository.save(ts3Client);
         }
 
         return null;
     }
 
-    public Integer updateTS3ClientLevel(String uniqueIdentifier) {
+    public TS3Client updateTS3ClientLevel(String uniqueIdentifier) {
         Optional<TS3Client> optionalTS3Client = ts3ClientRepository.findById(uniqueIdentifier);
         if (optionalTS3Client.isEmpty()) {
-            return -1;
+            return null;
         }
 
         TS3Client ts3Client = optionalTS3Client.get();
 
         Optional<TS3Group> optionalTS3Group = ts3GroupRepository.findFirstByMinimumCoinsLessThanEqualAndLevelTypeIsTrueOrderByMinimumCoinsDesc(ts3Client.getCoins());
         if (optionalTS3Group.isEmpty()) {
-            return -1;
+            return null;
         }
         TS3Group ts3Group = optionalTS3Group.get();
 
         if (ts3Client.getTs3LevelGroup() != null &&
                 ts3Group.getId() == ts3Client.getTs3LevelGroup().getId()) {
-            return -1;
+            return null;
         }
 
         ts3Client.setTs3LevelGroup(ts3Group);
         ts3Client = ts3ClientRepository.save(ts3Client);
 
-        return ts3Client.getTs3LevelGroup().getId();
-    }
-
-    public void updateTS3ClientLastPayDay(String uniqueIdentifier) {
-        Optional<TS3Client> optionalTS3Client = ts3ClientRepository.findById(uniqueIdentifier);
-        if (optionalTS3Client.isEmpty()) {
-            return;
-        }
-
-        TS3Client ts3Client = optionalTS3Client.get();
-
-        ts3Client.setLastPaydayDate(LocalDateTime.now());
-        ts3ClientRepository.save(ts3Client);
+        return ts3Client;
     }
 
     public TS3Client updateTS3ClientOnSpamAction(String uniqueIdentifier) {

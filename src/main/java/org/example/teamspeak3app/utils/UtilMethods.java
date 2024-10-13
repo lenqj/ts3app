@@ -37,20 +37,19 @@ public class UtilMethods {
         List<Client> clients = ts3Api.getClients();
         for (Client client : clients) {
             if (client.isRegularClient()) {
-                TS3Client ts3Client = checkClientActivity(client.getUniqueIdentifier(), ts3ClientService);
-                if (ts3Client != null) {
-                    ts3Api.sendPrivateMessage(client.getId(), "[PayDay] - Ai primit " + ts3Client.getLastPayday() + " coinsi la acest payday! Ai un total de " + ts3Client.getCoins() + " coinsi!");
+                TS3Client ts3Client = ts3ClientService.updateTS3ClientMoney(client.getUniqueIdentifier());
+                if (ts3Client != null && !ts3Client.isIgnorePaydayNotifications()) {
+                    Double lastPaydayCoins = ts3Client.getLastPayday();
+                    Double totalCoins = ts3Client.getCoins();
+
+                    String paydayMessage = "[B][PayDay][/B] - [color=green]You've received " + lastPaydayCoins + " coins[/color] during this payday! " +
+                            "You now have a total of [color=yellow]" + totalCoins + " coins[/color]!";
+
+                    ts3Api.sendPrivateMessage(client.getId(), paydayMessage);
                 }
             }
         }
     }
-
-    public static TS3Client checkClientActivity(
-            String uniqueIdentifier,
-            TS3ClientService ts3ClientService) {
-        return ts3ClientService.updateTS3ClientMoney(uniqueIdentifier);
-    }
-
 
     public static void checkClientsLevel(
             TS3Api ts3Api,
@@ -59,8 +58,8 @@ public class UtilMethods {
         List<Client> clients = ts3Api.getClients();
         for (Client client : clients) {
             if (client.isRegularClient()) {
-                Integer updatedGroupId = checkClientLevel(client.getUniqueIdentifier(), ts3ClientService);
-                if (updatedGroupId != -1) {
+                TS3Client ts3Client = ts3ClientService.updateTS3ClientLevel(client.getUniqueIdentifier());
+                if (ts3Client != null && ts3Client.getTs3LevelGroup() != null) {
                     List<TS3Group> allTS3LevelGroups = ts3GroupService.findAllByLevelTypeIsTrue();
 
                     int[] ts3ClientServerGroups = client.getServerGroups();
@@ -69,31 +68,36 @@ public class UtilMethods {
                             ts3Api.removeClientFromServerGroup(ts3ClientServerGroup, client.getDatabaseId());
                         }
                     }
+                    TS3Group ts3Group = ts3Client.getTs3LevelGroup();
 
-                    ts3Api.addClientToServerGroup(updatedGroupId, client.getDatabaseId());
-                    ts3Api.sendPrivateMessage(client.getId(),
-                            "Ai avansat la level nou!");
+                    ts3Api.addClientToServerGroup(ts3Group.getId(), client.getDatabaseId());
+
+                    if (!ts3Client.isIgnorePaydayNotifications()) {
+                        String levelUpMessage = "[B][Level Up][/B] - [color=green]Congratulations![/color] " +
+                                "You have advanced to [color=yellow] " + ts3Group.getName() + "[/color]!";
+                        ts3Api.sendPrivateMessage(client.getId(), levelUpMessage);
+                    }
+
                 }
             }
         }
     }
 
-    private static Integer checkClientLevel(
-            String uniqueIdentifier,
-            TS3ClientService ts3ClientService) {
-        return ts3ClientService.updateTS3ClientLevel(uniqueIdentifier);
-    }
-
     public static void checkAFKClients(
-            TS3Api ts3Api) {
+            TS3Api ts3Api,
+            TS3ClientService ts3ClientService) {
         List<Client> clients = ts3Api.getClients();
         for (Client client : clients) {
             if (client.isRegularClient() && client.getChannelId() != 2) {
+                TS3Client ts3Client = ts3ClientService.findTS3ClientById(client.getUniqueIdentifier());
                 long idleTime = client.getIdleTime();
-                if (idleTime >= 600000) {
+                if (idleTime >= 600000 && ts3Client != null && !ts3Client.isIgnoreAutoAFKMove()) {
                     ts3Api.moveClient(client.getId(), 2);
-                    ts3Api.sendPrivateMessage(client.getId(),
-                            "Ai fost AFK mai mult de " + 10 + " minute si te-am mutat pe canalul de AFK!");
+
+                    int afkMinutes = 10;
+                    String afkMessage = "[B][AFK Notice][/B] - [color=red]You have been AFK for more than " + afkMinutes + " minutes[/color], " +
+                            "so we've moved you to the AFK channel!";
+                    ts3Api.sendPrivateMessage(client.getId(), afkMessage);
                 }
             }
         }

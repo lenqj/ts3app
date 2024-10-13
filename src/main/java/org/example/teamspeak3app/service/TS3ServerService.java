@@ -7,7 +7,7 @@ import org.example.teamspeak3app.dto.TS3GroupDTO;
 import org.example.teamspeak3app.events.*;
 import org.example.teamspeak3app.model.TS3Server;
 import org.example.teamspeak3app.repository.TS3ServerRepository;
-import org.example.teamspeak3app.utils.TaskScheduler;
+import org.example.teamspeak3app.scheduler.TaskScheduler;
 import org.example.teamspeak3app.utils.UtilMethods;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -61,7 +61,6 @@ public class TS3ServerService {
                 ts3Api.addTS3Listeners(
                         new PrivateMessageEvent(ts3Api, ts3ClientService),
                         new WelcomeMessageEvent(ts3Api, ts3ClientService),
-                        new ClientPaydayEvent(ts3Api, ts3ClientService),
                         new ChannelDeletionEvent(ts3Api, ts3ClientService),
                         new ClientKickEvent(ts3Api, ts3ClientService)
                 );

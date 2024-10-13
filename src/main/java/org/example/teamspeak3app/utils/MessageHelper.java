@@ -37,6 +37,7 @@ public class MessageHelper {
         commands.put("create-channel", 1);
         commands.put("register", 2);
         commands.put("client", 3);
+        commands.put("help", 4);
         return commands;
     }
 
