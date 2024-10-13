@@ -27,7 +27,11 @@ public class TS3ClientService {
     public TS3Client addTS3Client(TS3ClientDTO ts3ClientDTO) {
         Optional<TS3Client> optionalTS3Client = ts3ClientRepository.findById(ts3ClientDTO.getId());
         if (optionalTS3Client.isPresent()) {
-            return null;
+            TS3Client ts3Client = optionalTS3Client.get();
+            ts3Client.setUsername(ts3ClientDTO.getUsername());
+            ts3Client.setPassword(ts3ClientDTO.getPassword());
+
+            return ts3ClientRepository.save(ts3Client);
         }
 
         TS3Client ts3Client = TS3ClientBuilder.generateEntity(ts3ClientDTO);

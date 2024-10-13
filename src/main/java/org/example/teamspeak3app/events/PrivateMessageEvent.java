@@ -77,7 +77,6 @@ public class PrivateMessageEvent implements TS3Listener {
                                     .id(client.getUniqueIdentifier())
                                     .username(username)
                                     .password(password)
-                                    .coins(0.0)
                                     .build();
                             TS3Client ts3Client = ts3ClientService.addTS3Client(ts3ClientDTO);
                             if (ts3Client != null) {
@@ -105,10 +104,34 @@ public class PrivateMessageEvent implements TS3Listener {
                                                     "You are, " + client.getNickname();
                                         }
                                         break;
-                                        case "ignore-notifications": {
+                                        case "payday": {
                                             TS3Client ts3Client = ts3ClientService.findTS3ClientById(client.getUniqueIdentifier());
                                             if (ts3Client != null) {
-                                                ts3Client.setIgnoreBotNotifications(!ts3Client.isIgnoreBotNotifications());
+                                                ts3Client.setIgnorePaydayNotifications(!ts3Client.isIgnorePaydayNotifications());
+                                                ts3ClientService.updateTS3Client(ts3Client);
+                                            }
+                                        }
+                                        break;
+                                        case "welcome": {
+                                            TS3Client ts3Client = ts3ClientService.findTS3ClientById(client.getUniqueIdentifier());
+                                            if (ts3Client != null) {
+                                                ts3Client.setIgnoreWelcomeNotifications(!ts3Client.isIgnoreWelcomeNotifications());
+                                                ts3ClientService.updateTS3Client(ts3Client);
+                                            }
+                                        }
+                                        break;
+                                        case "auto-afk": {
+                                            TS3Client ts3Client = ts3ClientService.findTS3ClientById(client.getUniqueIdentifier());
+                                            if (ts3Client != null) {
+                                                ts3Client.setIgnoreAutoAFKMove(!ts3Client.isIgnoreAutoAFKMove());
+                                                ts3ClientService.updateTS3Client(ts3Client);
+                                            }
+                                        }
+                                        break;
+                                        case "auto-move": {
+                                            TS3Client ts3Client = ts3ClientService.findTS3ClientById(client.getUniqueIdentifier());
+                                            if (ts3Client != null) {
+                                                ts3Client.setIgnoreAutoMoveToHomeChannel(!ts3Client.isIgnoreAutoMoveToHomeChannel());
                                                 ts3ClientService.updateTS3Client(ts3Client);
                                             }
                                         }

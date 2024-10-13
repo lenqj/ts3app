@@ -32,7 +32,16 @@ public class TS3Client {
     private Integer homeChannelId;
 
     @Column(nullable = false)
-    private boolean ignoreBotNotifications;
+    private boolean ignoreWelcomeNotifications;
+
+    @Column(nullable = false)
+    private boolean ignorePaydayNotifications;
+
+    @Column(nullable = false)
+    private boolean ignoreAutoAFKMove;
+
+    @Column(nullable = false)
+    private boolean ignoreAutoMoveToHomeChannel;
 
     @ManyToOne
     private TS3Group ts3LevelGroup;
